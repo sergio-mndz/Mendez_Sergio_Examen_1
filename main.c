@@ -76,22 +76,24 @@ int main(void) {
 	uint8_t init_counter = 0;
 	uint8_t led_5s_counter = 0;
 	uint8_t led_selector_counter = 0;
+	boolean_t init_running = TRUE;
 
 	while(1){
-		while(TRUE == GPIO_get_irq_status(GPIO_A)){
-			init_counter++;
+		while(TRUE == GPIO_get_irq_status(GPIO_A) && init_running){
 			if(THREE_SECONDS == init_counter){
 				g_sequence_access_granted = TRUE;
 				white_on();
-				init_counter = 0;
+				init_running = FALSE;
 			}
+			init_counter++;
 			while(FALSE == g_timer_end_flag){
 
 			}
 			g_timer_end_flag = FALSE;
 		}
+		init_counter = 0;
 
-		if(TRUE == g_sequence_access_granted){
+		while(TRUE == g_sequence_access_granted){
 			if(TRUE == GPIO_get_irq_status(GPIO_A)){
 				green_on();
 				while(led_5s_counter < 5){
