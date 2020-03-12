@@ -71,6 +71,14 @@
 /** Sets Interrupt when logic 1.*/
 #define INTR_LOGIC1        0x000C0000
 
+typedef struct
+{
+	uint8_t flag_port_a : 1;
+	uint8_t flag_port_b : 1;
+	uint8_t flag_port_c : 1;
+	uint8_t flag_port_d : 1;
+	uint8_t flag_port_e : 1;
+} gpio_interrupt_flags_t;
 
 /*! This definition is used to configure whether a pin is an input or an output*/
 typedef enum {GPIO_INPUT,/*!< Definition to configure a pin as input */
@@ -101,7 +109,8 @@ typedef const uint32_t gpio_pin_control_register_t;
  */
 void GPIO_clear_interrupt(gpio_port_name_t port_name);
 
-
+uint8_t GPIO_get_irq_status(gpio_port_name_t gpio);
+void GPIO_clear_irq_status(gpio_port_name_t gpio);
 
 /********************************************************************************************/
 /********************************************************************************************/

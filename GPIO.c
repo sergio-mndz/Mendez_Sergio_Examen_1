@@ -13,6 +13,73 @@
 #include "GPIO.h"
 #include "bits.h"
 
+static gpio_interrupt_flags_t g_intr_status_flag = {0};
+
+void PORTC_IRQHandler(void)
+{
+	g_intr_status_flag.flag_port_c = TRUE;
+	g_intr_status_flag.flag_port_a = FALSE;
+	GPIO_clear_interrupt(GPIO_C);
+
+}
+
+void PORTA_IRQHandler(void)
+{
+	g_intr_status_flag.flag_port_a = TRUE;
+	g_intr_status_flag.flag_port_c = FALSE;
+	GPIO_clear_interrupt(GPIO_A);
+}
+
+void GPIO_clear_interrupt(gpio_port_name_t port_name)
+{
+	switch(port_name)/** Selecting the GPIO for clock enabling*/
+	{
+		case GPIO_A: /** GPIO A is selected*/
+			PORTA->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_B: /** GPIO B is selected*/
+			PORTB->ISFR=0xFFFFFFFF;
+			break;
+		case GPIO_C: /** GPIO C is selected*/
+			PORTC->ISFR = 0xFFFFFFFF;
+			break;
+		case GPIO_D: /** GPIO D is selected*/
+			PORTD->ISFR=0xFFFFFFFF;
+			break;
+		default: /** GPIO E is selected*/
+			PORTE->ISFR=0xFFFFFFFF;
+			break;
+
+	}// end switch
+}
+
+void GPIO_clear_irq_status(gpio_port_name_t gpio)
+{
+	if(GPIO_A == gpio)
+	{
+		g_intr_status_flag.flag_port_a = FALSE;
+	}
+	else
+	{
+		g_intr_status_flag.flag_port_c = FALSE;
+	}
+}
+
+uint8_t GPIO_get_irq_status(gpio_port_name_t gpio)
+{
+	uint8_t status = 0;
+
+	if(GPIO_A == gpio)
+	{
+		status = g_intr_status_flag.flag_port_a;
+	}
+	else
+	{
+		status = g_intr_status_flag.flag_port_c;
+	}
+
+	return(status);
+}
 
 uint8_t GPIO_clock_gating(gpio_port_name_t port_name)
 {
