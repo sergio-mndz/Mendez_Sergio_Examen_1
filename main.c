@@ -29,13 +29,14 @@ void pit_handler(void)
 int main(void) {
 
 
-	void (*led_turn[5])();
+	void (*led_turn[6])();
 
-	led_turn[0] = blue_on;
-	led_turn[1] = red_on;
-	led_turn[2] = yellow_on;
-	led_turn[3] = purple_on;
-	led_turn[4] = cyan_on;
+	led_turn[0] = green_on;
+	led_turn[1] = blue_on;
+	led_turn[2] = red_on;
+	led_turn[3] = yellow_on;
+	led_turn[4] = purple_on;
+	led_turn[5] = cyan_on;
 
 	GPIO_clock_gating(GPIO_A);
 	GPIO_clock_gating(GPIO_B);
@@ -74,6 +75,7 @@ int main(void) {
 
 	uint8_t init_counter = 0;
 	uint8_t led_5s_counter = 0;
+	uint8_t led_selector_counter = 0;
 
 	while(1){
 		while(TRUE == GPIO_get_irq_status(GPIO_A)){
@@ -83,6 +85,9 @@ int main(void) {
 				white_on();
 				init_counter = 0;
 			}
+			while(FALSE == g_timer_end_flag){
+
+			}
 			g_timer_end_flag = FALSE;
 		}
 
@@ -90,11 +95,19 @@ int main(void) {
 			if(TRUE == GPIO_get_irq_status(GPIO_A)){
 				green_on();
 				while(led_5s_counter < 5){
-					if(TRUE == g_timer_end_flag){
-						led_5s_counter++;
+					led_5s_counter++;
+					if(TRUE == GPIO_get_irq_status(GPIO_C)){
+						led_selector_counter++;
+						if(6 == led_selector_counter){
+							led_selector_counter = 1;
+						}
 					}
-				}
+					while(FALSE == g_timer_end_flag){
 
+					}
+					g_timer_end_flag = FALSE;
+				}
+				led_turn[led_selector_counter]();
 			}
 		}
 	}
