@@ -12,12 +12,14 @@
 
 #define SYSTEM_CLOCK (21000000U)
 #define DELAY (1.0F)
+#define THREE_SECONDS (3U)
 
 gpio_pin_control_register_t led_enable = GPIO_MUX1;
 gpio_pin_control_register_t sw_enable = GPIO_MUX1 | GPIO_PE | GPIO_PS |
 										INTR_FALLING_EDGE;
 
 uint8_t g_timer_end_flag = FALSE;
+boolean_t g_sequence_access_granted = FALSE;
 
 void pit_handler(void)
 {
@@ -53,7 +55,6 @@ int main(void) {
 	GPIO_data_direction_pin(GPIO_B, GPIO_OUTPUT, bit_21);
 	GPIO_data_direction_pin(GPIO_B, GPIO_OUTPUT, bit_22);
 	GPIO_data_direction_pin(GPIO_E, GPIO_OUTPUT, bit_26);
-
 	GPIO_data_direction_pin(GPIO_A, GPIO_INPUT, bit_4);
 	GPIO_data_direction_pin(GPIO_C, GPIO_INPUT, bit_6);
 
@@ -62,17 +63,40 @@ int main(void) {
 
 	PIT_clock_gating();
 
+	PIT_enable_interrupt(PIT_0, PRIORITY_4);
+	NVIC_global_enable_interrupts;
+
+	pit_callback_init(pit_handler);
+
 	PIT_delay(PIT_0, SYSTEM_CLOCK, DELAY);
 
 	PIT_enable();
 
 	uint8_t init_counter = 0;
-	uint8_t led_sw2_counter = 0;
+	uint8_t led_5s_counter = 0;
 
 	while(1){
-		if(TRUE == GPIO_get_irq_status(GPIO_A)){
-
+		while(TRUE == GPIO_get_irq_status(GPIO_A)){
+			init_counter++;
+			if(THREE_SECONDS == init_counter){
+				g_sequence_access_granted = TRUE;
+				white_on();
+				init_counter = 0;
+			}
+			g_timer_end_flag = FALSE;
 		}
 
+		if(TRUE == g_sequence_access_granted){
+			if(TRUE == GPIO_get_irq_status(GPIO_A)){
+				green_on();
+				while(led_5s_counter < 5){
+					if(TRUE == g_timer_end_flag){
+						led_5s_counter++;
+					}
+				}
+
+			}
+		}
 	}
+
 }
