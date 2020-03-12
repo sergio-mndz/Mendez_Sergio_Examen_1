@@ -34,6 +34,7 @@ void green_on();
  */
 void blue_on();
 
+void cyan_on();
 
 /*
  *brief	  This function turns on the 22nd bit of the GPIOB

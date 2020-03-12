@@ -31,6 +31,12 @@ void green_on() {
 	GPIOE->PCOR |= (1<<26);
 }
 
+void cyan_on() {
+	GPIOB->PSOR |= (1<<22);
+	GPIOB->PCOR |= (1<<21);
+	GPIOE->PCOR |= (1<<26);
+}
+
 void yellow_on(){
 	/* Turning on the 22nd bit of GPIOB and the
 	 * 26th bit of GPIOE */
@@ -73,6 +79,11 @@ void purple_off(){
 	/* Turning on the 21st and 22nd bit of GPIOB */
 	GPIOB->PSOR |= (1<<22);
 	GPIOB->PSOR |= (1<<21);
+}
+
+void cyan_off() {
+	GPIOB->PSOR |= (1<<21);
+	GPIOE->PSOR |= (1<<26);
 }
 
 void yellow_off(){
